@@ -13,9 +13,6 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(({ coords: { latitude, longitude} }) => {
-    console.log('success', latitude, longitude)
-    console.log(`https://www.google.com/maps/@${latitude},${longitude}`)
-
     const coords = [latitude, longitude]
 
     const map = L.map('map').setView(coords, 14);
@@ -25,9 +22,19 @@ if (navigator.geolocation) {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    L.marker(coords).addTo(map)
-      .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-      .openPopup();
+    map.on('click', function ({latlng: { lat, lng }}) {
+      console.log(lat, lng)
+      L.marker([lat, lng]).addTo(map)
+        .bindPopup(L.popup({
+          minWidth: 100,
+          maxWidth: 250,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup' // cycling-popup
+        }))
+        .setPopupContent('Workout')
+        .openPopup();
+    })
 
 
   }, () => {
