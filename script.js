@@ -3,6 +3,7 @@
 class Workout {
   date = new Date()
   id = (Date.now() + '').slice(-10)
+  clicks = 0
 
   constructor (coords, distance, duration) {
     this.coords = coords
@@ -15,7 +16,10 @@ class Workout {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`
+  }
 
+  _click () {
+    this.clicks++
   }
 }
 
@@ -63,6 +67,7 @@ let inputElevation = document.querySelector('.form__input--elevation');
 
 class App {
   #map;
+  #mapZoomLevel = 14
   #mapEvent;
   #workouts = [];
 
@@ -70,6 +75,7 @@ class App {
     this._getPosition()
     form.addEventListener('submit', this._newWorkout.bind(this))
     inputType.addEventListener('change', this._toggleElevationField)
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this))
   }
 
   _getPosition () {
@@ -83,7 +89,7 @@ class App {
   _loadMap ({ coords: { latitude, longitude} }) {
     const coords = [latitude, longitude]
 
-    this.#map = L.map('map').setView(coords, 14);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     // fr/hot/
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -231,6 +237,24 @@ class App {
       }))
       .setPopupContent(`${workout.type === 'running' ? '🏃‍♂' : '🚵‍♀️'} ${workout.description}`)
       .openPopup();
+  }
+
+  _moveToPopup (e) {
+    const workoutEl = e.target.closest('.workout')
+
+    if (!workoutEl) return
+
+    const workout = this.#workouts.find(el => el.id === workoutEl.dataset.id)
+
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1
+      }
+    })
+
+    // using the public interface
+    workout._click()
   }
 }
 
