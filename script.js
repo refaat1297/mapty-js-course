@@ -269,7 +269,7 @@ class App {
     })
 
     // using the public interface
-    workout._click()
+    // workout._click()
   }
 
   _getLocalStorage () {
@@ -282,7 +282,7 @@ class App {
       const workoutObj = workout.type === 'running'
         ? new Running(workout.coords, workout.distance, workout.duration, workout.cadence)
         : new Cycling(workout.coords, workout.distance, workout.duration, workout.elevationGain)
-
+      workoutObj.id = workout.id
       this._renderWorkout(workoutObj)
     })
   }
